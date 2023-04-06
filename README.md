@@ -33,7 +33,7 @@ url: The base URL of the Odoo ERP system.
 ## Key Functions
 
 ### `po_loading(request)`
-![select_po screenshot](https://github.com/thetrebelcc/Odoo-PO-Procesor/blob/master/sc │
+![select_po_screenshot](https://github.com/thetrebelcc/Odoo-PO-Procesor/blob/master/sc │
  enshots/select_po.png)
  
 - Loads draft purchase orders from the Odoo ERP system.
