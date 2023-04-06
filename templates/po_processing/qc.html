@@ -1,0 +1,144 @@
+{% extends '_base.html' %}
+
+{% block content %}
+
+<h1>Review Purchase Order:</h1>
+<h1 id='po_name'>{{ po_name }}</h1>
+<div id="reader" width="600px"></div>
+<div id="po_done"></div>
+<div id="instructions">
+    Confirm the actual quantities match the Purchase Order quantities. If they do not match, edit to actual quantities. Then click process.
+</div>
+
+<div class="spinner-border" role="status" id="loadingGif" style="display:none">
+    <span class="sr-only">Loading...</span>
+</div>
+
+<table class="table" id="tables">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>PO Quantity</th>
+            <th>Actual Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in read_purchase_order_line %}
+        <tr>
+            <td>{{ user.product_id.1 }}</td>
+            <td>{{ user.product_qty }}</td>
+            <td>
+                <form class="form-inline" method="POST" action="/update/" id="myForm">
+                    {% csrf_token %}
+                    <input type="number" value="{{ user.product_qty }}" name="updatedqty" required>
+                    <input type="hidden" value="{{ user.product_id.0 }}" name="product">
+                    <input type="hidden" value="{{ user.product_qty }}" name="original">
+                    <input type="hidden" value="{{ name_of_po }}" name="name_of_po">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="button-group">
+    <button type="submit" class="btn btn-primary" id="submitButton">Process</button>
+
+<button type="button" class="btn btn-info flex-xl-shrink-0" onclick="window.print()">Print</button>
+
+
+<script>
+    // Get a reference to the form and submit button
+    var myForm = document.getElementById("myForm");
+    var submitButton = document.getElementById("submitButton");
+
+    // Create a loading spinner
+    var spinner = document.createElement("div");
+    spinner.classList.add("spinner-border");
+    spinner.setAttribute("role", "status");
+    spinner.style.display = "none";
+    submitButton.parentNode.insertBefore(spinner, submitButton.nextSibling);
+
+    // Function to disable all input elements
+    function disableInputs() {
+        var inputs = myForm.querySelectorAll("input, textarea, button, select");
+        inputs.forEach(function(input) {
+            input.disabled = true;
+        });
+    }
+
+    // Function to create a "Transfer" button
+    function createTransferButton() {
+        // Get po_name
+        var po_name = document.getElementById("po_name").textContent;
+        console.log('po_name', po_name);
+        var transferButton = document.createElement("button");
+        transferButton.innerText = "Transfer";
+        transferButton.classList.add("btn", "btn-primary");
+        transferButton.addEventListener("click", function() {
+            // Append the po_name value as a query parameter to the URL
+            window.location.href = "/process/?po_name=" + encodeURIComponent(po_name);
+        });
+        submitButton.parentNode.insertBefore(transferButton, submitButton.nextSibling);
+    }
+
+
+    // Attach a click event listener to the submit button
+    submitButton.addEventListener("click", function(event) {
+        // Prevent the default form submission behavior
+        event.preventDefault();
+
+        // Ask the user for confirmation
+        if (!confirm("Are you sure you want to submit the form?")) {
+            return;
+        }
+
+        // Show the loading spinner
+        spinner.style.display = "block";
+
+        // Submit the form using JavaScript
+        var formData = new FormData(myForm);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", myForm.action);
+        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+        xhr.send(formData);
+
+        // Handle the response
+        xhr.addEventListener("load", function() {
+            // Hide the loading spinner
+            spinner.style.display = "none";
+
+            if (xhr.status === 200) {
+                console.log("Form submitted successfully.");
+                // Get back the JSON response
+
+              
+                
+
+                // Show a success alert
+                alert("The PO has been updated successfully.");
+
+                // Disable all input elements
+                disableInputs();
+
+                //Hide buttons and instructions
+                document.getElementById("instructions").style.display = "none";
+                document.getElementById("submitButton").style.display = "none";
+                document.getElementById("po_done").innerHTML = "Purchase Order has been processed. Please click the button below to transfer the items to the warehouse.";
+            
+
+
+
+                // Create and display the "Transfer" button
+                createTransferButton();
+            } else {
+                console.error("Error submitting form.");
+            }
+        });
+    });
+</script>
+
+
+
+
+{% endblock %}

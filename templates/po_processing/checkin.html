@@ -1,0 +1,32 @@
+{% extends '_base.html' %}
+
+{% block title %}Quality Check Station{% endblock %}
+
+{% block content %}
+
+<div class="container text-center mt-5">
+
+  <h1><u>Check-In New Products</u></h1>
+
+  <div class="mt-5">
+    <h2>Select an existing Purchase Order</h2>
+
+    <form action="{% url 'qc_check' %}" method="post">
+      {% csrf_token %}
+      {% with purchase_orders=read_purchase_order_line %}
+
+      <select name="po">
+        {% for item in purchase_orders %}
+        <option value="{{item}}">{{item.name}}: Vendor: {{item.partner_id.1}} Date: {{item.date_order|slice:':-8'}}</option>
+        {% endfor %}
+      </select>
+      {% endwith %}
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+ 
+
+</div>
+
+{% endblock content %}
