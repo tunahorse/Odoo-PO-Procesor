@@ -52,7 +52,8 @@ url: The base URL of the Odoo ERP system.
 - Renders the `qc.html` template with the updated PO or returns a JSON response if the request method is invalid.
 
 ### `process(request)`
-![alt_text}(https://github.com/thetrebelcc/Odoo-PO-Procesor/blob/master/screenshots/submit_form.png)
+![alt_text](https://github.com/thetrebelcc/Odoo-PO-Procesor/blob/master/screenshots/submit_form.png)
+
 - Receives the purchase order name from a GET request query parameter.
 - Processes the purchase order in the Odoo ERP system.
 - Returns a JSON response indicating the success or failure of processing the PO.
